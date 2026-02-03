@@ -1,0 +1,100 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "76e336e8-230a-4702-8692-747d377b2821",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        380,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Olá, quem é você?",
+        "options": {}
+      },
+      "id": "e987114b-2252-4a0d-9b6d-a1130e4e6124",
+      "name": "AI Agent",
+      "type": "n8n-nodes-base.aiAgent",
+      "typeVersion": 1,
+      "position": [
+        600,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "model": "deepseek-chat",
+        "options": {
+          "baseURL": "https://api.deepseek.com"
+        }
+      },
+      "id": "a988d55a-8b1b-4d4b-a9a3-6b7383a8f11a",
+      "name": "DeepSeek (OpenAI Node)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        500,
+        460
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "your-credential-id",
+          "name": "DeepSeek API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "grok-beta",
+        "options": {
+          "baseURL": "https://api.x.ai/v1"
+        }
+      },
+      "id": "b988d55a-8b1b-4d4b-a9a3-6b7383a8f11b",
+      "name": "Grok (OpenAI Node)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        700,
+        460
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "your-credential-id-grok",
+          "name": "Grok API Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek (OpenAI Node)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
