@@ -25,6 +25,29 @@ docker compose up -d
 
 - **n8n:** Acesse em [http://localhost:5678](http://localhost:5678)
 - **Ollama:** Rodando em [http://localhost:11434](http://localhost:11434)
+- **Qdrant:** Banco de dados vetorial em [http://localhost:6333](http://localhost:6333)
+
+---
+
+## 📊 Banco de Dados e Relatórios Offline
+
+Este setup inclui **PostgreSQL** e **Qdrant** para armazenamento de informações e memória de longo prazo.
+
+### Relatórios de Diagnóstico
+O workflow `workflows/offline_diagnostic_report.json` exemplifica como:
+1. Coletar dados do sistema (simulado).
+2. Salvar logs estruturados no **PostgreSQL**.
+3. Gerar um relatório técnico em Markdown usando o **Ollama** (100% offline).
+
+Para usar:
+- Importe o JSON no n8n.
+- Configure as credenciais do Postgres e Ollama (Host: `postgres` e `ollama`).
+
+### Offline Persistence
+Todos os dados são armazenados localmente nos volumes Docker:
+- `postgres_storage`: Dados estruturados do n8n e diagnósticos.
+- `qdrant_storage`: Memória vetorial para a IA.
+- `ollama_storage`: Modelos de IA baixados.
 
 ---
 

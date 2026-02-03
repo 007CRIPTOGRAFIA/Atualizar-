@@ -1,0 +1,173 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "cpu_usage",
+              "value": "45%"
+            },
+            {
+              "name": "ram_usage",
+              "value": "8GB/16GB"
+            },
+            {
+              "name": "disk_space",
+              "value": "120GB Free"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2",
+      "name": "Simulate Data Collection",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        400,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS diagnostics (id SERIAL PRIMARY KEY, data JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);\nINSERT INTO diagnostics (data) VALUES ('{{ JSON.stringify($json) }}');"
+      },
+      "id": "3",
+      "name": "Save to PostgreSQL",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.1,
+      "position": [
+        600,
+        200
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "your-postgres-credential-id",
+          "name": "PostgreSQL Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        600,
+        400
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "your-ollama-credential-id",
+          "name": "Ollama Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Gere um relatório de diagnóstico em Português com base nos seguintes dados de hardware: CPU: {{ $node[\"Simulate Data Collection\"].json[\"cpu_usage\"] }}, RAM: {{ $node[\"Simulate Data Collection\"].json[\"ram_usage\"] }}, Disco: {{ $node[\"Simulate Data Collection\"].json[\"disk_space\"] }}. O relatório deve ser técnico e sugerir melhorias se necessário.",
+        "options": {}
+      },
+      "id": "5",
+      "name": "AI Agent Generator",
+      "type": "n8n-nodes-base.aiAgent",
+      "typeVersion": 1,
+      "position": [
+        850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fileContent": "={{ $json.output }}",
+        "fileName": "relatorio_diagnostico.md",
+        "options": {}
+      },
+      "id": "6",
+      "name": "Create Markdown Report",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Simulate Data Collection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulate Data Collection": {
+      "main": [
+        [
+          {
+            "node": "Save to PostgreSQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to PostgreSQL": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Generator": {
+      "main": [
+        [
+          {
+            "node": "Create Markdown Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
