@@ -1,0 +1,8 @@
+ollama
+pyautogui
+SpeechRecognition
+pyttsx3
+pyaudio
+psutil
+scapy
+pytest
